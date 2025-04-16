@@ -14,6 +14,7 @@ class VitazAssistant:
         self.similarity_threshold: float = 0.75
         with open("answer_database.json", "r") as f:
             self.answer_database = json.load(f)["questions_and_answers"]
+        self.current_answer_db: dict[str, str] = self.answer_database.copy()
     
     
     def generate_thoughts(self, message: str) -> str | None:
@@ -72,9 +73,9 @@ class VitazAssistant:
     
     def find_answ(self, query: str) -> str | None:
     
-        closest_matches: Any | list[str] = get_close_matches(query, self.answer_database.keys(), n=1, cutoff=self.similarity_threshold) or []
+        closest_matches: Any | list[str] = get_close_matches(query, self.current_answer_db.keys(), n=1, cutoff=self.similarity_threshold) or []
         if closest_matches:
-            return self.answer_database[closest_matches[0]]
+            return self.current_answer_db[closest_matches[0]]
         return None
 
     def process_message(self, message: str) -> dict[str, Any]:
@@ -87,9 +88,13 @@ class VitazAssistant:
                 response: str | None = self.generate_response(message, thoughts)
                 
                 self.history.append(f"user: {message}, assistant: {response}")
-                cache: bool = True
-                # Update the answer database
-                if cache == True and message:
+                if message:
+                    if response is not None:
+                        self.current_answer_db[message] = response
+                
+                cache: bool = False
+
+                if cache and message:
                     self.answer_database[message] = response
                     with open("answer_database.json", "w") as f:
                         json.dump({"questions_and_answers": self.answer_database}, f, indent=4)
