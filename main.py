@@ -72,7 +72,7 @@ class VitazAssistant:
     
     def find_answ(self, query: str) -> str | None:
     
-        closest_matches = get_close_matches(query, self.answer_database.keys(), n=1, cutoff=self.similarity_threshold)
+        closest_matches: Any | list[str] = get_close_matches(query, self.answer_database.keys(), n=1, cutoff=self.similarity_threshold) or []
         if closest_matches:
             return self.answer_database[closest_matches[0]]
         return None
@@ -87,14 +87,12 @@ class VitazAssistant:
                 response: str | None = self.generate_response(message, thoughts)
                 
                 self.history.append(f"user: {message}, assistant: {response}")
-                
+                cache: bool = True
                 # Update the answer database
-                if message:
+                if cache == True and message:
                     self.answer_database[message] = response
                     with open("answer_database.json", "w") as f:
                         json.dump({"questions_and_answers": self.answer_database}, f, indent=4)
-                else:
-                    response = "Message cannot be empty."
             else:
                 response = self.find_answ(message)
                 thoughts = None
@@ -120,91 +118,3 @@ def main() -> NoReturn:
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
