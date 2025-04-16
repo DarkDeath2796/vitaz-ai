@@ -95,7 +95,6 @@ class VitazAssistant:
                         json.dump({"questions_and_answers": self.answer_database}, f, indent=4)
                 else:
                     response = "Message cannot be empty."
-                    self.history.append(f"user: {message}, assistant: {response}")
             else:
                 response = self.find_answ(message)
                 thoughts = None
